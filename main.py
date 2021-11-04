@@ -25,6 +25,18 @@ class VkUploader:
         res = requests.get(get_photos_url, params={**self.params, **get_photos_params}).json()
         return res['response']
 
+    def creating_annotation(self, photos_info):
+        annotation = {}
+        for item in photos_info['items']:
+            if item['likes']['count'] in annotation.keys():
+                annotation[f"{item['likes']['count']}_{item['date']}"] = [item["sizes"][-1]["url"],
+                f'{item["sizes"][-1]["height"]}x{item["sizes"][-1]["width"]}']
+            else:
+                annotation[item['likes']['count']] = [item["sizes"][-1]["url"],
+                f'{item["sizes"][-1]["height"]}x{item["sizes"][-1]["width"]}']
+        return annotation
+
+
 # tests = VkUploader()
 # tests.get_token()
 
@@ -34,3 +46,4 @@ class VkUploader:
 if __name__ == '__main__':
     tests = VkUploader('552934290')
     pprint(tests.get_photos_info())
+    pprint(tests.creating_annotation(tests.get_photos_info()))
