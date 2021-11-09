@@ -2,7 +2,7 @@ from pprint import pprint
 import requests
 import datetime
 
-TOKEN = 'AQAAAAAFnjqpAADLW_qlheqamk17lcRQnKPsRVE'
+TOKEN = ''
 
 class VkGetData:
     def get_vk_token(self):
