@@ -64,22 +64,42 @@ class YaUpload:
         url = 'https://cloud-api.yandex.net/v1/disk/resources/upload'
         headers = self.get_headers()
         folder_name = self.create_a_folder()
+        with open('Annotation.txt', 'w') as f:
+            f.write(folder_name + '\n')
         for item in annotation.items():
             params = {'path': f'{folder_name}/{item[0]}.jpg', 'url': item[1][0]}
             response = requests.post(url, headers=headers, params=params)
             if response.status_code == 202:
                 print(f'Файл {item[0]} загружается')
+                with open('Annotation.txt', 'a') as f:
+                    f.write(str({"file_name": item[0], "size": item[1][1]}) + '\n')
             else:
                 print(f'Загрузка файла {item[0]} не удалась')
-        # print(params)
+        return folder_name
 
+
+
+    def upload_annotation_to_disk(self, folder_name):
+        upload_url = 'https://cloud-api.yandex.net/v1/disk/resources/upload'
+        headers = self.get_headers()
+        disk_file_path = folder_name + '/Annotation.txt'
+        params = {'path': disk_file_path, 'overwrite': 'false'}
+        response = requests.get(upload_url, headers=headers, params=params).json()
+        href = response.get('href', '')
+        print(href)
+        response = requests.put(href, data=open('Annotation.txt', 'rb'))
+        if response.status_code == 201:
+            print('Аннотация загружена')
 
 
 
 
 if __name__ == '__main__':
-    tests = VkGetData('552934290')
-    pprint(tests.get_photos_info())
-    pprint(tests.creating_annotation(tests.get_photos_info()))
-    test_1 = YaUpload(TOKEN)
-    print(test_1.upload_file_to_disk(tests.creating_annotation(tests.get_photos_info())))
+    id = input('Введите id VK: ')
+    TOKEN = input('Введите ваш токен для Яндекс.Диск: ')
+    vk = VkGetData(id)
+    pprint(vk.get_photos_info())
+    pprint(vk.creating_annotation(vk.get_photos_info()))
+    ya = YaUpload(TOKEN)
+    print(ya.upload_annotation_to_disk(ya.upload_file_to_disk(vk.creating_annotation(vk.get_photos_info()))))
+    # 552934290 id тестового аккаунта
